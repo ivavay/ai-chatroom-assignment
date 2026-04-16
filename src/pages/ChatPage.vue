@@ -22,7 +22,17 @@
                     </div>
                     <div class="message" :class="msg.sender" v-html="msg.text"></div>
                 </div>
+                <div class="reminder-container">
+                    <transition name="fade-up" mode="out-in">
+                        <div :key="currentReminder" class="reminder-text">
+                            <img :src="currentReminder.icon" alt="reminder icon" class="reminder-icon" />
+                            {{ currentReminder.text }}
+                        </div>
+                    </transition>
+                </div>
             </div>
+
+
 
             <div class="composer row items-center">
                 <q-input v-model="input" dense borderless placeholder="Say something..." @keyup.enter="sendMessage"
@@ -39,7 +49,7 @@
 </template>
 
 <script setup>
-import { nextTick, onMounted, reactive, ref } from 'vue'
+import { nextTick, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { MESSAGE_MOCK_MAP } from '../mock/messages'
 
 const visible = ref(false)
@@ -127,6 +137,46 @@ function sendMessage() {
         scrollToBottom()
     }, 5000)
 }
+
+
+const reminders = [
+    {
+        text: 'Upload your supplier list ',
+        icon: new URL('../assets/clip.png', import.meta.url).href
+    },
+    {
+        text: 'Check if Avastin is in stock',
+        icon: new URL('../assets/cart.png', import.meta.url).href
+    },
+    {
+        text: "Check if there's a better price for Xeomin",
+        icon: new URL('../assets/hand.png', import.meta.url).href
+    },
+    {
+        text: 'What are some generic options for Restylane',
+        icon: new URL('../assets/glass.png', import.meta.url).href
+    },
+    {
+        text: 'What’s the best product for Xeomin',
+        icon: new URL('../assets/thumb.png', import.meta.url).href
+    }
+]
+
+const index = ref(0)
+const currentReminder = ref(reminders[0])
+
+let interval
+
+onMounted(() => {
+    interval = setInterval(() => {
+        index.value = (index.value + 1) % reminders.length
+        currentReminder.value = reminders[index.value]
+    }, 5000)
+})
+
+onUnmounted(() => {
+    clearInterval(interval)
+})
 </script>
 
 <style scoped>
@@ -152,6 +202,7 @@ function sendMessage() {
     bottom: calc(100% + 12px);
     right: 0;
     width: min(780px, calc(100vw - 40px));
+    min-height: 591px;
     max-height: min(911px, calc(100vh - 80px));
     background: white;
     border-radius: 12px;
@@ -312,5 +363,51 @@ function sendMessage() {
     display: flex;
     align-items: flex-start;
     align-self: flex-start;
+}
+
+.reminder-container {
+    position: absolute;
+    bottom: 88px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.reminder-text {
+    color: #5C6970;
+    font-size: 16px;
+}
+
+.reminder-icon {
+    width: 16px;
+    height: auto;
+    margin-right: 8px;
+}
+
+.fade-up-enter-active,
+.fade-up-leave-active {
+    transition: all 0.4s ease;
+}
+
+.fade-up-enter-from {
+    opacity: 0;
+    transform: translateY(10px);
+
+}
+
+.fade-up-enter-to {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.fade-up-leave-from {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.fade-up-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
 }
 </style>
