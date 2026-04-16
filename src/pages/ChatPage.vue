@@ -63,6 +63,7 @@ function scrollToBottom() {
 
 onMounted(scrollToBottom)
 
+// For formatting the bot response display from mock data JSON
 function formatMessage(content) {
     if (!content) return ''
 
@@ -81,33 +82,54 @@ function formatMessage(content) {
     return html
 }
 
+/**
+ * sendMessage
+ * - Adds the user's message.
+ * - Immediately shows a temporary bot message "Thinking...".
+ * - After 5 seconds replaces the temporary message with the real formatted response (or a fallback).
+ */
 function sendMessage() {
     const text = input.value?.trim()
     if (!text) return
 
     const now = Date.now()
 
+    // add user's message
     messages.push({ id: now, text, sender: 'user' })
+
+    // clear composer and scroll
     input.value = ''
     scrollToBottom()
 
+    // lookup mock response
     const lower = text.toLowerCase()
-    const matchedKey = Object.keys(MESSAGE_MOCK_MAP).find(
-        k => k.toLowerCase() === lower
-    )
+    const matchedKey = Object.keys(MESSAGE_MOCK_MAP).find(k => k.toLowerCase() === lower)
 
     let botText = 'Sorry, I encountered an error. Please try again later.'
-
     if (matchedKey) {
         const entry = MESSAGE_MOCK_MAP[matchedKey]
         const raw = entry?.message?.content
         botText = formatMessage(raw) || botText
     }
 
+    // insert temporary 'Thinking...' message and remember its id
+    const thinkingId = now + 1
+    messages.push({ id: thinkingId, text: 'Thinking...', sender: 'bot', loading: true })
+    scrollToBottom()
+
+    // after 5 seconds replace the temporary message with the final response
     setTimeout(() => {
-        messages.push({ id: now + 1, text: botText, sender: 'bot' })
+        const idx = messages.findIndex(m => m.id === thinkingId)
+        if (idx !== -1) {
+            // change the "Thinking" message the to-be loaded message 
+            messages[idx].text = botText
+            messages[idx].loading = false
+        } else {
+            // user closed the window before the timeout — append the response anyway
+            messages.push({ id: thinkingId + 1, text: botText, sender: 'bot' })
+        }
         scrollToBottom()
-    }, 300)
+    }, 5000)
 }
 </script>
 
@@ -273,10 +295,11 @@ function sendMessage() {
 /* ✅ Single definition */
 .composer {
     flex: 0 0 auto;
-    padding: 10px;
+    padding: 16px 20px;
     border-top: 1px solid #eee;
     gap: 8px;
     font-size: 16px;
+    height: 68px;
 }
 
 .placeholder {
