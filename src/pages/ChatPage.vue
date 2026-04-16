@@ -54,6 +54,7 @@ const messages = reactive([
     }
 ])
 
+// ensure messages are scrolled to bottom when new message is sent 
 function scrollToBottom() {
     nextTick(() => {
         const el = messagesRef.value
@@ -63,7 +64,7 @@ function scrollToBottom() {
 
 onMounted(scrollToBottom)
 
-// For formatting the bot response display from mock data JSON
+// for formatting the bot response to HTML display from mock data JSON
 function formatMessage(content) {
     if (!content) return ''
 
@@ -82,12 +83,7 @@ function formatMessage(content) {
     return html
 }
 
-/**
- * sendMessage
- * - Adds the user's message.
- * - Immediately shows a temporary bot message "Thinking...".
- * - After 5 seconds replaces the temporary message with the real formatted response (or a fallback).
- */
+/* sendMessage -- adds the user's messages to arr, shows "Thinking" message for 5 secs before response/fallback */
 function sendMessage() {
     const text = input.value?.trim()
     if (!text) return
@@ -218,7 +214,6 @@ function sendMessage() {
 
 }
 
-/* ✅ Single definition — scrollable container, no overflow on children */
 .messages {
     flex: 1 1 auto;
     min-height: 0;
@@ -232,11 +227,8 @@ function sendMessage() {
     display: flex;
     width: 100%;
     align-items: flex-start;
-    /* ensure top alignment */
     gap: 12px;
-    /* spacing between avatar and message */
     padding: 8px 0;
-    /* vertical spacing between rows */
 }
 
 .message-row.user {
@@ -247,14 +239,11 @@ function sendMessage() {
     justify-content: flex-start;
 }
 
-/* ✅ No max-height or overflow-y — message expands to full height */
 .message {
     padding: 10px 16px;
-
     font-size: 18px;
     line-height: 1.5;
     margin: 0;
-    /* remove margins so avatar and message align consistently */
     box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
     word-wrap: break-word;
 }
@@ -292,7 +281,6 @@ function sendMessage() {
     color: #1f2937;
 }
 
-/* ✅ Single definition */
 .composer {
     flex: 0 0 auto;
     padding: 16px 20px;
@@ -324,6 +312,5 @@ function sendMessage() {
     display: flex;
     align-items: flex-start;
     align-self: flex-start;
-    /* ensure avatar aligns to top of the message */
 }
 </style>
