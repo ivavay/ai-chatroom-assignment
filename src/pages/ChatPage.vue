@@ -26,7 +26,7 @@
 
             <div class="composer row items-center">
                 <q-input v-model="input" dense borderless placeholder="Say something..." @keyup.enter="sendMessage"
-                    class="flex" />
+                    class="flex placeholder" />
 
                 <img src="~assets/paperclip.png" alt="clip" class="paperclip-icon" />
                 <img src="~assets/send-btn.png" alt="send" class="send-icon" @click="sendMessage" />
@@ -228,7 +228,7 @@ function sendMessage() {
 /* ✅ No max-height or overflow-y — message expands to full height */
 .message {
     padding: 10px 16px;
-    border-radius: 12px;
+
     font-size: 18px;
     line-height: 1.5;
     margin: 0;
@@ -240,11 +240,13 @@ function sendMessage() {
 .message.user {
     background: #A9D4D6;
     max-width: 400px;
+    border-radius: 12px 0 12px 12px;
 }
 
 .message.bot {
     background: #e9ecef;
     max-width: calc(100% - 56px);
+    border-radius: 0 12px 12px 12px;
 }
 
 .message :deep(ol) {
@@ -274,6 +276,11 @@ function sendMessage() {
     padding: 10px;
     border-top: 1px solid #eee;
     gap: 8px;
+    font-size: 16px;
+}
+
+.placeholder {
+    font-size: 16px;
 }
 
 .composer .q-btn {
