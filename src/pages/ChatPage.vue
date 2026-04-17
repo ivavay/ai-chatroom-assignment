@@ -61,14 +61,17 @@
                 </div>
             </div>
         </div>
-
-        <q-btn class="cta-button" unelevated no-caps label="Ask Nitra AI" @click="visible = !visible" />
+        <q-btn class="cta-button" unelevated no-caps @click="visible = !visible">
+            <img :src="magicWandIcon" class="magicwand-icon" alt="magic wand" />
+            <span>Ask Nitra AI</span>
+        </q-btn>
 
     </div>
 </template>
 
 <script setup>
 import { nextTick, onMounted, onUnmounted, reactive, ref } from 'vue'
+import magicWandIcon from '../assets/magic-wand.png'
 import { MESSAGE_MOCK_MAP } from '../mock/messages'
 
 // ref creates a reactive value, and when it changes, the UI is automatically updated
@@ -264,11 +267,22 @@ onUnmounted(() => {
 }
 
 .cta-button {
-    background: #ff7a1a;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     color: white;
-    border-radius: 24px;
-    padding: 10px 16px;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 14px;
+    background-color: #FB7429;
+    border-radius: 999px;
+    padding: 8px 16px;
+}
+
+.magicwand-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    margin-right: 8px
 }
 
 .chat-window {
@@ -303,7 +317,7 @@ onUnmounted(() => {
 .send-icon {
     width: 36px;
     height: auto;
-    margin-right: 20px;
+
 }
 
 .paperclip-icon {
@@ -537,7 +551,6 @@ onUnmounted(() => {
 .send-slot {
     width: 36px;
     height: 36px;
-    margin-right: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -548,6 +561,7 @@ onUnmounted(() => {
     width: 36px;
     height: 36px;
     background: #264D4F;
+    opacity: 70%;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -568,5 +582,11 @@ onUnmounted(() => {
     to {
         transform: rotate(360deg);
     }
+}
+
+.magicwand-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
 }
 </style>
