@@ -100,6 +100,24 @@ function formatMessage(content) {
     return html
 }
 
+/*  typewriter helper function  */
+function typeMessage(messageIndex, fullText, speed = 20) {
+    let i = 0
+    messages[messageIndex].typing = true
+
+    const timer = setInterval(() => {
+        if (i <= fullText.length) {
+            const partialText = fullText.slice(0, i)
+            messages[messageIndex].text = formatMessage(partialText)
+            i++
+            scrollToBottom()
+        } else {
+            clearInterval(timer)
+            messages[messageIndex].typing = false
+        }
+    }, speed)
+}
+
 /* sendMessage -- adds the user's messages to arr, shows "Thinking" message for 5 secs before response/fallback */
 function sendMessage() {
     const text = input.value?.trim()
@@ -122,7 +140,7 @@ function sendMessage() {
     if (matchedKey) {
         const entry = MESSAGE_MOCK_MAP[matchedKey]
         const raw = entry?.message?.content
-        botText = formatMessage(raw) || botText
+        botText = raw || botText
     }
 
     // insert temporary 'Thinking...' message and remember its id
@@ -134,12 +152,10 @@ function sendMessage() {
     setTimeout(() => {
         const idx = messages.findIndex(m => m.id === thinkingId)
         if (idx !== -1) {
-            // change the "Thinking" message the to-be loaded message 
-            messages[idx].text = botText
             messages[idx].loading = false
-        } else {
-            // user closed the window before the timeout — append the response anyway
-            messages.push({ id: thinkingId + 1, text: botText, sender: 'bot' })
+            messages[idx].text = ''
+            messages[idx].typing = true
+            typeMessage(idx, botText, 20)
         }
         scrollToBottom()
     }, 5000)
