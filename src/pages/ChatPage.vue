@@ -129,7 +129,7 @@ function typeMessage(messageIndex, fullText, speed = 20, onDone) {
     }, speed)
 }
 
-
+/* Split suggested content from content into its own */
 function splitSuggested(content) {
     if (!content) return { main: '', suggested: '' }
 
@@ -450,6 +450,7 @@ onUnmounted(() => {
     margin-right: 8px;
 }
 
+/* Reminders animation */
 .fade-up-enter-active,
 .fade-up-leave-active {
     transition: all 0.4s ease;
@@ -499,6 +500,7 @@ onUnmounted(() => {
     display: inline-block;
 }
 
+/* "Thinking..." animation */
 @keyframes dots {
     0% {
         content: '';
@@ -530,7 +532,7 @@ onUnmounted(() => {
     justify-content: center;
 }
 
-/* outer circle */
+/* send button loading spinner */
 .custom-spinner {
     width: 36px;
     height: 36px;
@@ -541,20 +543,17 @@ onUnmounted(() => {
     justify-content: center;
 }
 
-/* inner spinning ring */
+
 .custom-spinner::after {
     content: '';
     width: 18px;
     height: 18px;
     border: 2px solid rgba(255, 255, 255, 0.6);
-    /* 60% opacity */
     border-top-color: transparent;
-    /* creates spinner gap */
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
 
-/* animation */
 @keyframes spin {
     to {
         transform: rotate(360deg);
