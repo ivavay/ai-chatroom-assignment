@@ -1,6 +1,5 @@
 <template>
     <div class="chat-widget">
-
         <div v-if="visible" class="chat-window">
             <div class="chat-header row items-center justify-between">
                 <div class="header-content column justify-center">
@@ -21,6 +20,11 @@
                         <img v-if="msg.variant !== 'suggested'" class="avatar" src="~assets/avatar.png"
                             alt="bot avatar" />
                     </div>
+                    <!-- 
+                    class = [ always include msg.sender, 
+                    include 'thinking' IF loading,
+                    include 'suggested' IF variant matches
+                    ]-->
                     <div class="message" :class="[
                         msg.sender,
                         { thinking: msg.loading },
@@ -67,10 +71,13 @@
 import { nextTick, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { MESSAGE_MOCK_MAP } from '../mock/messages'
 
+// ref creates a reactive value, and when it changes, the UI is automatically updated
+// ref is similar to useState in react 
 const visible = ref(false)
 const input = ref('')
 const messagesRef = ref(null)
 const isBotBusy = ref(false)
+
 const messages = reactive([
     {
         id: Date.now(),
@@ -90,7 +97,7 @@ function scrollToBottom() {
 
 onMounted(scrollToBottom)
 
-// for formatting the bot response to HTML display from mock data JSON
+// for formatting the bot response to HTML display from mock data JSON, usingn regex
 function formatMessage(content) {
     if (!content) return ''
 
@@ -109,7 +116,7 @@ function formatMessage(content) {
     return html
 }
 
-/*  typewriter helper function  */
+/*  typewriter helper function, also when timer is up, set isBotBusy to false  */
 function typeMessage(messageIndex, fullText, speed = 20, onDone) {
     let i = 0
     messages[messageIndex].typing = true
@@ -129,7 +136,7 @@ function typeMessage(messageIndex, fullText, speed = 20, onDone) {
     }, speed)
 }
 
-/* Split suggested content from content into its own */
+/* splits suggested content from content into its own */
 function splitSuggested(content) {
     if (!content) return { main: '', suggested: '' }
 
@@ -146,6 +153,7 @@ function splitSuggested(content) {
         suggested: content.slice(splitIndex).trim()
     }
 }
+
 /* sendMessage -- adds the user's messages to arr, shows "Thinking" message for 5 secs before response/fallback */
 function sendMessage() {
     const text = input.value?.trim()
@@ -176,6 +184,7 @@ function sendMessage() {
     const thinkingId = now + 1
     messages.push({ id: thinkingId, text: 'Thinking...', sender: 'bot', loading: true })
     scrollToBottom()
+    // set isBotBusy to true when there is a loading message
     isBotBusy.value = true
     // after 5 seconds replace the temporary message with the final response
     setTimeout(() => {
@@ -232,6 +241,8 @@ const currentReminder = ref(reminders[0])
 
 let interval
 
+/* Component appears → start a loop → every 5s: show next reminder →Component disappears → stop the loop*/
+/* onMounted runs when component appears, unOnMounted runs when component is gone */
 onMounted(() => {
     interval = setInterval(() => {
         index.value = (index.value + 1) % reminders.length
@@ -542,7 +553,6 @@ onUnmounted(() => {
     align-items: center;
     justify-content: center;
 }
-
 
 .custom-spinner::after {
     content: '';
