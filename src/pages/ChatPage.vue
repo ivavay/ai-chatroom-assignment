@@ -20,7 +20,13 @@
                     <div v-if="msg.sender === 'bot'" class="avatar">
                         <img class="avatar" src="~assets/avatar.png" alt="bot avatar" />
                     </div>
-                    <div class="message" :class="msg.sender" v-html="msg.text"></div>
+                    <div class="message" :class="[msg.sender, { thinking: msg.loading }]">
+                        <span v-if="msg.loading" class="thinking">
+                            Thinking<span class="dots"></span>
+                        </span>
+
+                        <span v-else v-html="msg.text"></span>
+                    </div>
                 </div>
                 <div class="reminder-container">
                     <transition name="fade-up" mode="out-in">
@@ -366,9 +372,8 @@ onUnmounted(() => {
 }
 
 .reminder-container {
-    position: absolute;
-    bottom: 88px;
-    left: 20px;
+    position: static;
+    margin-top: 12px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -409,5 +414,47 @@ onUnmounted(() => {
 .fade-up-leave-to {
     opacity: 0;
     transform: translateY(-10px);
+}
+
+.message.bot.thinking {
+    width: 115px;
+    /* or whatever fits your design */
+    display: flex;
+    align-items: center;
+}
+
+.thinking .dots::after {
+    content: '';
+    animation: dots 1s steps(4, end) infinite;
+}
+
+.dots {
+    opacity: 60%;
+}
+
+.thinking .dots {
+    display: inline-block;
+}
+
+@keyframes dots {
+    0% {
+        content: '';
+    }
+
+    25% {
+        content: '.';
+    }
+
+    50% {
+        content: '..';
+    }
+
+    75% {
+        content: '...';
+    }
+
+    100% {
+        content: '';
+    }
 }
 </style>
