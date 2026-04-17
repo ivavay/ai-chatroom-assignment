@@ -50,7 +50,11 @@
                     class="flex placeholder" />
 
                 <img src="~assets/paperclip.png" alt="clip" class="paperclip-icon" />
-                <img src="~assets/send-btn.png" alt="send" class="send-icon" @click="sendMessage" />
+                <div class="send-slot">
+                    <div v-if="isBotBusy" class="custom-spinner"></div>
+
+                    <img v-else src="~assets/send-btn.png" alt="send" class="send-icon" @click="sendMessage" />
+                </div>
             </div>
         </div>
 
@@ -66,7 +70,7 @@ import { MESSAGE_MOCK_MAP } from '../mock/messages'
 const visible = ref(false)
 const input = ref('')
 const messagesRef = ref(null)
-
+const isBotBusy = ref(false)
 const messages = reactive([
     {
         id: Date.now(),
@@ -119,6 +123,7 @@ function typeMessage(messageIndex, fullText, speed = 20, onDone) {
         } else {
             clearInterval(timer)
             messages[messageIndex].typing = false
+            isBotBusy.value = false
             if (onDone) onDone()
         }
     }, speed)
@@ -171,7 +176,7 @@ function sendMessage() {
     const thinkingId = now + 1
     messages.push({ id: thinkingId, text: 'Thinking...', sender: 'bot', loading: true })
     scrollToBottom()
-
+    isBotBusy.value = true
     // after 5 seconds replace the temporary message with the final response
     setTimeout(() => {
         const idx = messages.findIndex(m => m.id === thinkingId)
@@ -513,6 +518,46 @@ onUnmounted(() => {
 
     100% {
         content: '';
+    }
+}
+
+.send-slot {
+    width: 36px;
+    height: 36px;
+    margin-right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* outer circle */
+.custom-spinner {
+    width: 36px;
+    height: 36px;
+    background: #264D4F;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* inner spinning ring */
+.custom-spinner::after {
+    content: '';
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    /* 60% opacity */
+    border-top-color: transparent;
+    /* creates spinner gap */
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+/* animation */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
     }
 }
 </style>
