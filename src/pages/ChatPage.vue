@@ -18,9 +18,14 @@
             <div class="messages" ref="messagesRef">
                 <div v-for="msg in messages" :key="msg.id" class="message-row" :class="msg.sender">
                     <div v-if="msg.sender === 'bot'" class="avatar">
-                        <img class="avatar" src="~assets/avatar.png" alt="bot avatar" />
+                        <img v-if="msg.variant !== 'suggested'" class="avatar" src="~assets/avatar.png"
+                            alt="bot avatar" />
                     </div>
-                    <div class="message" :class="[msg.sender, { thinking: msg.loading }]">
+                    <div class="message" :class="[
+                        msg.sender,
+                        { thinking: msg.loading },
+                        { suggested: msg.variant === 'suggested' }
+                    ]">
                         <span v-if="msg.loading" class="thinking">
                             Thinking<span class="dots"></span>
                         </span>
@@ -101,23 +106,41 @@ function formatMessage(content) {
 }
 
 /*  typewriter helper function  */
-function typeMessage(messageIndex, fullText, speed = 20) {
+function typeMessage(messageIndex, fullText, speed = 20, onDone) {
     let i = 0
     messages[messageIndex].typing = true
 
     const timer = setInterval(() => {
-        if (i <= fullText.length) {
-            const partialText = fullText.slice(0, i)
+        if (i < fullText.length) {
+            const partialText = fullText.slice(0, i + 1)
             messages[messageIndex].text = formatMessage(partialText)
             i++
             scrollToBottom()
         } else {
             clearInterval(timer)
             messages[messageIndex].typing = false
+            if (onDone) onDone()
         }
     }, speed)
 }
 
+
+function splitSuggested(content) {
+    if (!content) return { main: '', suggested: '' }
+
+    const match = content.match(/(^|\n)(Suggested.*)$/is)
+
+    if (!match) {
+        return { main: content, suggested: '' }
+    }
+
+    const splitIndex = match.index + match[1].length
+
+    return {
+        main: content.slice(0, splitIndex).trim(),
+        suggested: content.slice(splitIndex).trim()
+    }
+}
 /* sendMessage -- adds the user's messages to arr, shows "Thinking" message for 5 secs before response/fallback */
 function sendMessage() {
     const text = input.value?.trim()
@@ -141,8 +164,9 @@ function sendMessage() {
         const entry = MESSAGE_MOCK_MAP[matchedKey]
         const raw = entry?.message?.content
         botText = raw || botText
-    }
 
+    }
+    const { main, suggested } = splitSuggested(botText)
     // insert temporary 'Thinking...' message and remember its id
     const thinkingId = now + 1
     messages.push({ id: thinkingId, text: 'Thinking...', sender: 'bot', loading: true })
@@ -151,12 +175,25 @@ function sendMessage() {
     // after 5 seconds replace the temporary message with the final response
     setTimeout(() => {
         const idx = messages.findIndex(m => m.id === thinkingId)
+
         if (idx !== -1) {
             messages[idx].loading = false
             messages[idx].text = ''
             messages[idx].typing = true
-            typeMessage(idx, botText, 20)
+
+            typeMessage(idx, main, 20, () => {
+                if (suggested) {
+                    messages.push({
+                        id: thinkingId + 1,
+                        text: formatMessage(suggested),
+                        sender: 'bot',
+                        variant: 'suggested'
+                    })
+                    scrollToBottom()
+                }
+            })
         }
+
         scrollToBottom()
     }, 5000)
 }
@@ -438,6 +475,10 @@ onUnmounted(() => {
     width: 115px;
     display: flex;
     align-items: center;
+}
+
+.message-row.bot.suggested {
+    margin-left: 36px;
 }
 
 .thinking .dots::after {
