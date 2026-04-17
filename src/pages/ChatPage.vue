@@ -28,9 +28,9 @@
                         <span v-else v-html="msg.text"></span>
                     </div>
                 </div>
-                <div class="reminder-container">
+                <div v-if="!messages.some(msg => msg.sender === 'user')" class="reminder-container">
                     <transition name="fade-up" mode="out-in">
-                        <div :key="currentReminder" class="reminder-text">
+                        <div :key="currentReminder.text" class="reminder-text">
                             <img :src="currentReminder.icon" alt="reminder icon" class="reminder-icon" />
                             {{ currentReminder.text }}
                         </div>
@@ -69,6 +69,7 @@ const messages = reactive([
         sender: 'bot'
     }
 ])
+
 
 // ensure messages are scrolled to bottom when new message is sent 
 function scrollToBottom() {
@@ -372,8 +373,9 @@ onUnmounted(() => {
 }
 
 .reminder-container {
-    position: static;
-    margin-top: 12px;
+    position: absolute;
+    bottom: 88px;
+    left: 20px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -418,7 +420,6 @@ onUnmounted(() => {
 
 .message.bot.thinking {
     width: 115px;
-    /* or whatever fits your design */
     display: flex;
     align-items: center;
 }
